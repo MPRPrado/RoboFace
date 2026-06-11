@@ -1,0 +1,879 @@
+:root {
+  --bg: #020b06;
+  --green: #42ff88;
+  --green-soft: #19b85c;
+  --white: #edfff4;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--white);
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  user-select: none;
+}
+
+.robot {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  min-width: 280px;
+  min-height: 280px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(25, 184, 92, 0.18), transparent 48%),
+    linear-gradient(145deg, #020a06, #031b0e 55%, #020a06);
+  isolation: isolate;
+}
+
+.ambient-grid {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  opacity: 0.16;
+  background-image:
+    linear-gradient(rgba(66, 255, 136, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(66, 255, 136, 0.18) 1px, transparent 1px);
+  background-size: clamp(35px, 5vw, 75px) clamp(35px, 5vw, 75px);
+  mask-image: radial-gradient(circle at center, black, transparent 80%);
+}
+
+.scanline {
+  position: absolute;
+  inset: -15% 0 auto;
+  z-index: -1;
+  height: 18%;
+  opacity: 0.15;
+  background: linear-gradient(transparent, var(--green), transparent);
+  animation: scan 7s linear infinite;
+}
+
+.fireworks {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: none;
+  pointer-events: none;
+}
+
+.fireworks span {
+  position: absolute;
+  width: 7px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  color: var(--green);
+  background: currentColor;
+  box-shadow:
+    0 -70px currentColor, 50px -50px currentColor, 70px 0 currentColor, 50px 50px currentColor,
+    0 70px currentColor, -50px 50px currentColor, -70px 0 currentColor, -50px -50px currentColor,
+    0 -115px 0 -1px currentColor, 82px -82px 0 -1px currentColor, 115px 0 0 -1px currentColor,
+    82px 82px 0 -1px currentColor, 0 115px 0 -1px currentColor, -82px 82px 0 -1px currentColor,
+    -115px 0 0 -1px currentColor, -82px -82px 0 -1px currentColor;
+  opacity: 0;
+  animation: firework-burst 1.8s ease-out infinite;
+}
+
+.fireworks span:nth-child(1) { top: 24%; left: 16%; }
+.fireworks span:nth-child(2) { top: 20%; right: 16%; animation-delay: -0.6s; color: #baffd1; }
+.fireworks span:nth-child(3) { bottom: 25%; left: 22%; animation-delay: -1.2s; color: #22dd70; }
+.fireworks span:nth-child(4) { bottom: 22%; right: 20%; animation-delay: -0.9s; }
+
+.speed-lines {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: none;
+  opacity: 0.42;
+  background:
+    linear-gradient(90deg, transparent, rgba(66, 255, 136, 0.9), transparent) -50vw 14% / 34vw 3px no-repeat,
+    linear-gradient(90deg, transparent, rgba(66, 255, 136, 0.6), transparent) -70vw 29% / 48vw 2px no-repeat,
+    linear-gradient(90deg, transparent, rgba(66, 255, 136, 0.95), transparent) -35vw 46% / 27vw 4px no-repeat,
+    linear-gradient(90deg, transparent, rgba(66, 255, 136, 0.65), transparent) -80vw 68% / 56vw 2px no-repeat,
+    linear-gradient(90deg, transparent, rgba(66, 255, 136, 0.8), transparent) -55vw 84% / 42vw 3px no-repeat;
+  filter: drop-shadow(0 0 7px var(--green));
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.7s cubic-bezier(0.2, 0.9, 0.25, 1), opacity 0.4s ease;
+}
+
+.eyes {
+  position: absolute;
+  top: 24%;
+  left: 50%;
+  display: flex;
+  gap: clamp(42px, 13vw, 280px);
+  transform: translateX(-50%);
+}
+
+.eye {
+  position: relative;
+  width: clamp(100px, 22vw, 360px);
+  height: clamp(78px, 15vw, 235px);
+  overflow: hidden;
+  border: clamp(7px, 1vw, 15px) solid var(--green);
+  border-radius: 48%;
+  background: rgba(66, 255, 136, 0.14);
+  box-shadow: 0 0 22px var(--green), inset 0 0 38px rgba(66, 255, 136, 0.36);
+  transition: all 0.38s ease;
+}
+
+.pupil {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 28%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: 0 0 25px var(--white);
+  transform: translate(-50%, -50%);
+  transition: all 0.35s ease;
+}
+
+.mouth {
+  position: absolute;
+  left: 50%;
+  bottom: 29%;
+  width: clamp(64px, 8vw, 130px);
+  height: clamp(12px, 1.5vw, 24px);
+  border-radius: 30px;
+  background: var(--green);
+  box-shadow: 0 0 18px var(--green);
+  transform: translateX(-50%);
+  transition: all 0.38s ease;
+}
+
+.cheeks {
+  position: absolute;
+  top: 58%;
+  left: 50%;
+  display: flex;
+  justify-content: space-between;
+  width: 72%;
+  opacity: 0;
+  transform: translateX(-50%);
+  transition: opacity 0.3s ease;
+}
+
+.cheeks span {
+  width: clamp(42px, 6vw, 100px);
+  height: clamp(10px, 1.4vw, 22px);
+  border-radius: 50%;
+  background: #7cff9f;
+  filter: blur(3px);
+  box-shadow: 0 0 22px #7cff9f;
+}
+
+.sleep-symbols {
+  position: absolute;
+  top: 13%;
+  right: 15%;
+  color: var(--green);
+  font-family: "Arial Black", "Trebuchet MS", sans-serif;
+  font-size: clamp(28px, 5vw, 70px);
+  text-shadow: 0 0 15px var(--green);
+}
+
+.sleep-symbols span {
+  position: absolute;
+  animation: float-z 3s ease-in-out infinite;
+}
+
+.sleep-symbols span:nth-child(2) {
+  animation-delay: 0.7s;
+  transform: translate(-45px, 40px) scale(0.75);
+}
+
+.sleep-symbols span:nth-child(3) {
+  animation-delay: 1.4s;
+  transform: translate(-75px, 75px) scale(0.5);
+}
+
+.game-panel {
+  z-index: 2;
+  position: absolute;
+  bottom: clamp(16px, 4vh, 60px);
+  left: 50%;
+  display: grid;
+  justify-items: center;
+  width: 94vw;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.message {
+  min-height: 1.4em;
+  margin: 0;
+  color: var(--green);
+  font-family: "Arial Black", "Trebuchet MS", sans-serif;
+  font-size: clamp(13px, 2.1vmin, 30px);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 16px rgba(66, 255, 136, 0.7);
+}
+
+.counter {
+  display: none;
+  margin: -8px 0;
+  color: var(--white);
+  font-family: "Arial Black", "Trebuchet MS", sans-serif;
+  font-size: clamp(58px, 12vw, 190px);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: 0 0 22px var(--green), 0 0 70px rgba(66, 255, 136, 0.65);
+}
+
+.animal-result {
+  display: none;
+  color: var(--green);
+  font-family: "Arial Black", "Trebuchet MS", sans-serif;
+  font-size: clamp(32px, 6vw, 92px);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 25px var(--green);
+}
+
+.instruction {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 0;
+  color: rgba(237, 255, 244, 0.7);
+  font-size: clamp(10px, 1.5vmin, 18px);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+
+.key-icon {
+  padding: 7px 16px;
+  border: 1px solid var(--green-soft);
+  border-radius: 8px;
+  color: var(--green);
+  box-shadow: inset 0 -3px rgba(66, 255, 136, 0.15), 0 0 10px rgba(66, 255, 136, 0.2);
+  animation: key-glow 2s ease-in-out infinite;
+}
+
+.arm {
+  position: absolute;
+  z-index: 3;
+  top: 42%;
+  width: clamp(35px, 5vw, 80px);
+  height: clamp(100px, 15vw, 230px);
+  border-radius: 999px;
+  background: var(--green);
+  box-shadow: 0 0 24px var(--green);
+  opacity: 0;
+  transform-origin: 50% 90%;
+  transition: opacity 0.3s ease;
+}
+
+.arm span {
+  position: absolute;
+  top: -14%;
+  left: -24%;
+  width: 148%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 24px var(--green);
+}
+
+.arm-left {
+  left: 19%;
+}
+
+.arm-right {
+  right: 19%;
+}
+
+.robot[data-state="sleeping"] .eye {
+  height: 12px;
+  border-width: 0 0 7px;
+  border-radius: 0 0 50% 50%;
+  background: transparent;
+  animation: sleeping-eyes 3.5s ease-in-out infinite;
+}
+
+.robot[data-state="sleeping"] .pupil {
+  opacity: 0;
+}
+
+.robot[data-state="sleeping"] .mouth {
+  width: clamp(42px, 5vw, 72px);
+  height: 11px;
+  opacity: 0.65;
+}
+
+.robot[data-state="sleeping"][data-expression="peek"] .eye-left {
+  height: clamp(42px, 7vw, 105px);
+  border-width: clamp(5px, 0.7vw, 10px);
+  border-radius: 50%;
+  background: rgba(66, 255, 136, 0.1);
+}
+
+.robot[data-state="sleeping"][data-expression="peek"] .eye-left .pupil {
+  opacity: 1;
+}
+
+.robot[data-state="sleeping"][data-expression="dream"] .mouth {
+  width: clamp(34px, 4vw, 66px);
+  height: clamp(34px, 4vw, 66px);
+  border-radius: 50%;
+  animation: yawn 1.5s ease-in-out infinite;
+}
+
+.robot[data-state="sleeping"][data-expression="deep-sleep"] .eye-left {
+  transform: translateY(5px) rotate(4deg);
+}
+
+.robot[data-state="sleeping"][data-expression="deep-sleep"] .eye-right {
+  transform: translateY(5px) rotate(-4deg);
+}
+
+.robot[data-state="sleeping"][data-expression="deep-sleep"] .mouth {
+  width: clamp(14px, 2vw, 30px);
+  height: clamp(14px, 2vw, 30px);
+  border-radius: 50%;
+}
+
+.robot[data-state="sleeping"][data-expression="yawn"] .mouth {
+  width: clamp(45px, 6vw, 90px);
+  height: clamp(45px, 6vw, 90px);
+  border-radius: 50%;
+  animation: sleepy-yawn 1.2s ease-in-out infinite;
+}
+
+.robot:not([data-state="sleeping"]) .sleep-symbols {
+  display: none;
+}
+
+.robot[data-state="waking"] .eye {
+  animation: wake-up 1.55s ease-in-out both;
+}
+
+.robot[data-state="waking"] .mouth {
+  width: clamp(40px, 5vw, 75px);
+  height: clamp(40px, 5vw, 75px);
+  border-radius: 50%;
+  animation: yawn 1.55s ease-in-out;
+}
+
+.robot[data-state="waking"] .message {
+  font-size: clamp(28px, 6vw, 92px);
+  letter-spacing: 0.04em;
+  animation: target-reveal 0.65s cubic-bezier(0.2, 1.4, 0.35, 1) both;
+}
+
+.robot[data-state="playing"] .counter {
+  display: block;
+}
+
+.robot[data-state="countdown"] .game-panel {
+  inset: 50% auto auto 50%;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+}
+
+.robot[data-state="countdown"] .counter {
+  display: block;
+  font-size: clamp(140px, 30vw, 520px);
+  animation: countdown-pop 0.85s ease-out infinite;
+}
+
+.robot[data-state="countdown"] .message,
+.robot[data-state="countdown"] .instruction {
+  display: none;
+}
+
+.robot[data-state="countdown"] .face {
+  opacity: 0.22;
+  transform: scale(0.94);
+}
+
+.robot[data-state="playing"] .game-panel {
+  inset: 50% auto auto 50%;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+}
+
+.robot[data-state="playing"] .counter {
+  font-size: clamp(90px, 21vw, 390px);
+}
+
+.robot[data-state="playing"] .instruction {
+  display: none;
+}
+
+.robot[data-state="playing"] .message {
+  display: block;
+  margin-bottom: clamp(12px, 2vh, 26px);
+  color: var(--green);
+  font-size: clamp(20px, 3vw, 46px);
+  opacity: 0.85;
+}
+
+.robot[data-state="playing"] .face {
+  display: none;
+}
+
+.robot[data-state="victory"] .game-panel,
+.robot[data-state="defeat"] .game-panel {
+  bottom: clamp(18px, 5vh, 70px);
+}
+
+.robot[data-state="victory"] .message,
+.robot[data-state="victory"] .instruction,
+.robot[data-state="defeat"] .message,
+.robot[data-state="defeat"] .instruction {
+  display: none;
+}
+
+.robot[data-state="victory"] .counter,
+.robot[data-state="defeat"] .counter {
+  display: block;
+  font-size: clamp(62px, 10vw, 155px);
+  animation: result-time 0.65s cubic-bezier(0.2, 1.4, 0.35, 1) both;
+}
+
+.robot[data-locked="true"] .counter {
+  opacity: 0.72;
+  animation: result-time 0.65s cubic-bezier(0.2, 1.4, 0.35, 1) both, result-lock 0.55s ease-in-out infinite alternate;
+}
+
+.robot[data-state="victory"] {
+  --green: #68ff9a;
+  --green-soft: #2bcf69;
+}
+
+.robot[data-state="victory"] .eye {
+  height: clamp(48px, 7vw, 110px);
+  border-width: clamp(8px, 1vw, 14px) 0 0;
+  border-radius: 50% 50% 0 0;
+  background: transparent;
+  transform: translateY(22px);
+}
+
+.robot[data-state="victory"] .pupil,
+.robot[data-state="defeat"] .pupil {
+  opacity: 0;
+}
+
+.robot[data-state="victory"] .pupil {
+  opacity: 1;
+  width: 28%;
+  border-radius: 50%;
+  clip-path: none;
+  box-shadow:
+    0 0 18px var(--white),
+    0 0 40px var(--white),
+    0 0 75px var(--green);
+  animation: glowing-pupil 0.65s ease-in-out infinite alternate;
+}
+
+.robot[data-state="victory"] .mouth {
+  width: clamp(130px, 18vw, 280px);
+  height: clamp(65px, 9vw, 140px);
+  border-radius: 15px 15px 100px 100px;
+  animation: happy-bounce 0.75s ease-in-out infinite alternate;
+}
+
+.robot[data-state="victory"] .cheeks,
+.robot[data-state="defeat"] .cheeks {
+  opacity: 0.85;
+}
+
+.robot[data-state="victory"] .face {
+  animation: victory-dance 0.55s ease-in-out infinite alternate;
+}
+
+.robot[data-state="victory"] .fireworks {
+  display: block;
+}
+
+.robot[data-state="victory"] .face::before,
+.robot[data-state="victory"] .face::after {
+  content: "";
+  position: absolute;
+  top: 16%;
+  left: 14%;
+  width: clamp(20px, 3vw, 50px);
+  aspect-ratio: 1;
+  background: var(--green);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 56%, 79% 94%, 50% 71%, 21% 94%, 32% 56%, 2% 35%, 39% 35%);
+  filter: drop-shadow(0 0 12px var(--green));
+  animation: victory-spark 0.75s ease-in-out infinite alternate;
+}
+
+.robot[data-state="victory"] .face::after {
+  top: 22%;
+  right: 14%;
+  left: auto;
+  animation-delay: -0.9s;
+}
+
+.robot[data-state="defeat"] {
+  --green: #ff3f4e;
+  --green-soft: #c81f32;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 35, 58, 0.2), transparent 48%),
+    linear-gradient(145deg, #100204, #260408 55%, #100204);
+}
+
+.robot[data-state="defeat"] .ambient-grid {
+  background-image:
+    linear-gradient(rgba(255, 63, 78, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 63, 78, 0.18) 1px, transparent 1px);
+}
+
+.robot[data-state="defeat"] .cheeks span {
+  background: #ff7180;
+  box-shadow: 0 0 22px #ff3f4e;
+}
+
+.robot[data-state="defeat"] .eye-left {
+  height: clamp(20px, 2.4vw, 38px);
+  border-width: 0 0 9px;
+  border-radius: 0 0 50% 50%;
+  transform: rotate(13deg);
+  background: transparent;
+}
+
+.robot[data-state="defeat"] .eye-right {
+  height: clamp(20px, 2.4vw, 38px);
+  border-width: 0 0 9px;
+  border-radius: 0 0 50% 50%;
+  transform: rotate(-13deg);
+  background: transparent;
+}
+
+.robot[data-state="defeat"] .mouth {
+  width: clamp(110px, 15vw, 240px);
+  height: clamp(54px, 8vw, 120px);
+  border-radius: 12px 12px 90px 90px;
+  animation: laugh 0.22s ease-in-out infinite alternate;
+}
+
+.robot[data-state="defeat"] .face {
+  animation: defeat-shake 0.32s ease-in-out infinite alternate;
+}
+
+.robot[data-state="defeat"] .counter {
+  color: #fff0f1;
+  text-shadow: 0 0 22px var(--green), 0 0 75px rgba(255, 63, 78, 0.75);
+  animation: result-time 0.65s cubic-bezier(0.2, 1.4, 0.35, 1) both, error-flicker 1.5s steps(2) infinite;
+}
+
+.robot[data-state="defeat"] .face::before,
+.robot[data-state="defeat"] .face::after {
+  content: "";
+  position: absolute;
+  top: 16%;
+  width: 20%;
+  height: 4px;
+  background: var(--green);
+  box-shadow: 0 0 18px var(--green);
+  opacity: 0.65;
+  animation: error-line 0.9s steps(2) infinite;
+}
+
+.robot[data-state="defeat"] .face::before {
+  left: 4%;
+}
+
+.robot[data-state="defeat"] .face::after {
+  right: 4%;
+  animation-delay: -0.45s;
+}
+
+.robot[data-state="click-ready"] .message {
+  font-size: clamp(28px, 5vw, 76px);
+  animation: target-reveal 0.65s cubic-bezier(0.2, 1.4, 0.35, 1) both;
+}
+
+.robot[data-state="click-ready"] .speed-lines,
+.robot[data-state="click-test"] .speed-lines,
+.robot[data-state="click-result"] .speed-lines {
+  display: block;
+  animation: speed-lines 1.4s linear infinite;
+}
+
+.robot[data-state="click-ready"],
+.robot[data-state="click-test"],
+.robot[data-state="click-result"] {
+  background:
+    radial-gradient(ellipse at 72% 45%, rgba(66, 255, 136, 0.25), transparent 35%),
+    linear-gradient(105deg, #020a06, #032414 55%, #020a06);
+}
+
+.robot[data-state="click-ready"] .face {
+  transform: translateY(-14vh) skewX(-4deg) rotate(-2deg);
+}
+
+.robot[data-state="click-ready"] .eye {
+  border-radius: 24% 48% 48% 24%;
+}
+
+.robot[data-state="click-ready"] .game-panel,
+.robot[data-state="click-test"] .game-panel,
+.robot[data-state="click-result"] .game-panel {
+  inset: auto auto 1.5vh 50%;
+  bottom: 1.5vh;
+  transform: translateX(-50%);
+}
+
+.robot[data-state="click-ready"] .pupil {
+  transform: translate(-5%, -50%);
+}
+
+.robot[data-state="click-ready"] .counter {
+  display: block;
+  font-size: clamp(58px, 9vw, 140px);
+}
+
+.robot[data-state="click-ready"] .eye {
+  animation: click-ready-eyes 0.8s ease-in-out infinite alternate;
+}
+
+.robot[data-state="click-test"] .face {
+  opacity: 0.42;
+  animation: click-energy 0.12s ease-in-out infinite alternate;
+}
+
+.robot[data-state="click-test"] .speed-lines {
+  opacity: 0.7;
+  animation-duration: 0.32s;
+}
+
+.robot[data-state="click-test"] .eyes {
+  transform: translateX(-50%) skewX(-9deg);
+}
+
+.robot[data-state="click-test"] .pupil {
+  transform: translate(0, -50%);
+}
+
+.robot[data-state="click-test"] .message {
+  font-size: clamp(22px, 4vw, 64px);
+  animation: click-pulse 0.35s ease-in-out infinite alternate;
+}
+
+.robot[data-state="click-test"] .counter {
+  display: block;
+  font-size: clamp(80px, 14vw, 210px);
+}
+
+.robot[data-state="click-test"] .instruction {
+  font-size: clamp(22px, 4vw, 60px);
+  color: var(--green);
+}
+
+.robot[data-state="click-result"] .game-panel {
+  bottom: 1.5vh;
+}
+
+.robot[data-state="click-result"] .face {
+  transform: translateY(-14vh);
+}
+
+.robot[data-state="click-result"] .message {
+  display: none;
+}
+
+.robot[data-state="click-result"] .counter {
+  display: block;
+  font-size: clamp(52px, 9vw, 145px);
+}
+
+.robot[data-state="click-result"] .animal-result {
+  display: block;
+  animation: animal-arrive 0.7s cubic-bezier(0.2, 1.4, 0.35, 1) both;
+}
+
+.robot[data-state="click-result"] .eye {
+  border-radius: 50%;
+}
+
+.robot[data-state="click-result"] .pupil {
+  animation: glowing-pupil 0.65s ease-in-out infinite alternate;
+}
+
+.robot[data-state="click-result"] .mouth {
+  width: clamp(120px, 16vw, 250px);
+  height: clamp(55px, 8vw, 120px);
+  border-radius: 12px 12px 90px 90px;
+}
+
+@keyframes scan {
+  to { transform: translateY(750%); }
+}
+
+@keyframes float-z {
+  0%, 100% { opacity: 0; margin-top: 20px; }
+  45% { opacity: 1; }
+  80% { opacity: 0; margin-top: -35px; }
+}
+
+@keyframes sleeping-eyes {
+  50% { transform: translateY(5px); filter: brightness(0.65); }
+}
+
+@keyframes wake-up {
+  0%, 25% { height: 12px; border-width: 0 0 7px; border-radius: 0 0 50% 50%; }
+  45% { height: clamp(78px, 15vw, 235px); }
+  60% { height: 12px; }
+  75%, 100% { height: clamp(78px, 15vw, 235px); }
+}
+
+@keyframes yawn {
+  0%, 100% { transform: translateX(-50%) scaleY(0.25); }
+  50% { transform: translateX(-50%) scaleY(1); }
+}
+
+@keyframes sleepy-yawn {
+  0%, 100% { transform: translateX(-50%) scale(0.6); }
+  50% { transform: translateX(-50%) scale(1.15); }
+}
+
+@keyframes key-glow {
+  50% { box-shadow: inset 0 -3px rgba(66, 255, 136, 0.2), 0 0 22px var(--green); }
+}
+
+@keyframes target-reveal {
+  from { transform: scale(0.55); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes countdown-pop {
+  0% { transform: scale(0.55); opacity: 0; }
+  30% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(0.92); opacity: 0.45; }
+}
+
+@keyframes result-lock {
+  to { filter: brightness(0.75); }
+}
+
+@keyframes wave {
+  from { transform: rotate(-35deg); }
+  to { transform: rotate(35deg); }
+}
+
+@keyframes victory-dance {
+  from { transform: translateY(8px) rotate(-5deg) scale(0.96); }
+  to { transform: translateY(-20px) rotate(5deg) scale(1.04); }
+}
+
+@keyframes glowing-pupil {
+  to {
+    transform: translate(-50%, -50%) scale(1.2);
+    filter: brightness(1.5);
+  }
+}
+
+@keyframes victory-spark {
+  from { transform: scale(0.65) rotate(-15deg); opacity: 0.35; }
+  to { transform: scale(1.25) rotate(15deg); opacity: 1; }
+}
+
+@keyframes firework-burst {
+  0% { transform: scale(0.08); opacity: 0; }
+  12% { opacity: 1; }
+  75% { opacity: 0.75; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+
+@keyframes result-time {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes defeat-shake {
+  from { transform: translateX(-7px) rotate(-1deg); }
+  to { transform: translateX(7px) rotate(1deg); }
+}
+
+@keyframes error-line {
+  50% { transform: translateY(22vh); opacity: 0; }
+}
+
+@keyframes error-flicker {
+  50% { opacity: 0.72; transform: translateX(4px); }
+}
+
+@keyframes click-ready-eyes {
+  to { transform: scaleY(0.88); filter: brightness(1.35); }
+}
+
+@keyframes click-energy {
+  from { transform: translateY(-14vh) scale(0.985); filter: brightness(1); }
+  to { transform: translateY(-14vh) scale(1.015); filter: brightness(1.25); }
+}
+
+@keyframes click-pulse {
+  to { transform: scale(1.12); text-shadow: 0 0 30px var(--green); }
+}
+
+@keyframes animal-arrive {
+  from { transform: translateY(25px) scale(0.5); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes speed-lines {
+  to {
+    background-position:
+      130vw 14%, 145vw 29%, 120vw 46%, 155vw 68%, 138vw 84%;
+  }
+}
+
+@keyframes happy-bounce {
+  to { transform: translateX(-50%) scaleX(1.08) scaleY(0.92); }
+}
+
+@keyframes laugh {
+  to { transform: translateX(-50%) scaleY(0.82); }
+}
+
+@keyframes tease {
+  to { transform: translateX(9px) rotate(1deg); }
+}
+
+@media (max-aspect-ratio: 4/3) {
+  .eyes {
+    top: 27%;
+    gap: 10vw;
+  }
+
+  .eye {
+    width: clamp(92px, 28vw, 250px);
+    height: clamp(70px, 20vw, 175px);
+  }
+}
+
+@media (max-height: 560px) {
+  .eyes {
+    top: 17%;
+  }
+
+  .mouth {
+    bottom: 25%;
+  }
+
+  .game-panel {
+    bottom: 10px;
+  }
+
+  .counter {
+    font-size: clamp(50px, 20vh, 105px);
+  }
+}

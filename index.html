@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cara Robô</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main id="robot" class="robot" data-state="sleeping">
+      <div class="ambient-grid" aria-hidden="true"></div>
+      <div class="scanline" aria-hidden="true"></div>
+      <div class="speed-lines" aria-hidden="true"></div>
+      <div class="fireworks" aria-hidden="true">
+        <span></span><span></span><span></span><span></span>
+      </div>
+
+      <section class="face" aria-label="Rosto animado do robô">
+        <div class="arm arm-left" aria-hidden="true"><span></span></div>
+        <div class="arm arm-right" aria-hidden="true"><span></span></div>
+
+        <div class="sleep-symbols" aria-hidden="true">
+          <span>Z</span><span>z</span><span>z</span>
+        </div>
+
+        <div class="eyes">
+          <div class="eye eye-left"><span class="pupil"></span></div>
+          <div class="eye eye-right"><span class="pupil"></span></div>
+        </div>
+
+        <div class="cheeks" aria-hidden="true">
+          <span></span><span></span>
+        </div>
+
+        <div class="mouth" aria-hidden="true">
+          <span class="mouth-inner"></span>
+        </div>
+      </section>
+
+      <section class="game-panel" aria-live="polite">
+        <p id="message" class="message">SHHH... ESTOU DORMINDO</p>
+        <div id="counter" class="counter" aria-label="Contador">--</div>
+        <div id="animal-result" class="animal-result" aria-hidden="true"></div>
+        <p id="instruction" class="instruction">
+          <span class="key-icon">BOTÃO</span>
+          PARA ACORDAR
+        </p>
+      </section>
+    </main>
+
+    <script src="game.js"></script>
+  </body>
+</html>
