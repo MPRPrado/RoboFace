@@ -83,6 +83,35 @@ body {
 .fireworks span:nth-child(3) { bottom: 25%; left: 22%; animation-delay: -1.2s; color: #22dd70; }
 .fireworks span:nth-child(4) { bottom: 22%; right: 20%; animation-delay: -0.9s; }
 
+.six-seven-effect {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: none;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.six-seven-effect span {
+  position: absolute;
+  top: var(--y);
+  left: var(--x);
+  color: #baffd1;
+  font-size: var(--size);
+  font-weight: 900;
+  line-height: 1;
+  text-shadow:
+    0 0 8px #ffffff,
+    0 0 20px var(--green),
+    0 0 42px var(--green);
+  opacity: 0;
+  animation: six-seven-pop var(--duration) var(--delay) ease-in-out infinite;
+}
+
+.robot[data-state="victory"][data-celebration="six-seven"] .six-seven-effect {
+  display: block;
+}
+
 .speed-lines {
   position: absolute;
   inset: 0;
@@ -138,6 +167,28 @@ body {
   box-shadow: 0 0 25px var(--white);
   transform: translate(-50%, -50%);
   transition: all 0.35s ease;
+}
+
+.tear {
+  display: none;
+}
+
+.eyebrows {
+  position: absolute;
+  top: 17%;
+  left: 50%;
+  display: none;
+  justify-content: space-between;
+  width: min(53vw, 850px);
+  transform: translateX(-50%);
+}
+
+.eyebrows span {
+  width: clamp(105px, 14vw, 230px);
+  height: clamp(35px, 5vw, 80px);
+  border-top: clamp(8px, 1vw, 16px) solid var(--green);
+  border-radius: 50%;
+  filter: drop-shadow(0 0 10px var(--green));
 }
 
 .mouth {
@@ -428,18 +479,22 @@ body {
 }
 
 .robot[data-state="victory"] .game-panel,
+.robot[data-state="almost"] .game-panel,
 .robot[data-state="defeat"] .game-panel {
   bottom: clamp(18px, 5vh, 70px);
 }
 
 .robot[data-state="victory"] .message,
 .robot[data-state="victory"] .instruction,
+.robot[data-state="almost"] .message,
+.robot[data-state="almost"] .instruction,
 .robot[data-state="defeat"] .message,
 .robot[data-state="defeat"] .instruction {
   display: none;
 }
 
 .robot[data-state="victory"] .counter,
+.robot[data-state="almost"] .counter,
 .robot[data-state="defeat"] .counter {
   display: block;
   font-size: clamp(62px, 10vw, 155px);
@@ -520,6 +575,136 @@ body {
   right: 14%;
   left: auto;
   animation-delay: -0.9s;
+}
+
+.robot[data-state="almost"] {
+  --green: #ffd84d;
+  --green-soft: #c99b19;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 216, 77, 0.2), transparent 48%),
+    linear-gradient(145deg, #0e0b02, #241b03 55%, #0e0b02);
+}
+
+.robot[data-state="almost"] .ambient-grid {
+  background-image:
+    linear-gradient(rgba(255, 216, 77, 0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 216, 77, 0.16) 1px, transparent 1px);
+}
+
+.robot[data-state="almost"] .eye {
+  width: clamp(105px, 12vw, 190px);
+  height: clamp(70px, 8vw, 125px);
+  border: clamp(8px, 0.8vw, 13px) solid var(--green);
+  border-radius: 44% 44% 50% 50%;
+  overflow: visible;
+  background: transparent;
+  box-shadow:
+    0 0 18px var(--green),
+    0 0 40px rgba(255, 216, 77, 0.45);
+  transform: none;
+}
+
+.robot[data-state="almost"] .eye-right {
+  transform: none;
+}
+
+.robot[data-state="almost"] .pupil {
+  top: 61%;
+  width: 18%;
+  opacity: 1;
+  box-shadow:
+    0 0 15px var(--white),
+    0 0 28px rgba(255, 249, 196, 0.75);
+  animation: none;
+}
+
+.robot[data-state="almost"] .tear {
+  position: absolute;
+  top: calc(100% - 7px);
+  display: none;
+  width: clamp(25px, 2.8vw, 44px);
+  height: clamp(88px, 13vh, 155px);
+  border-radius: 42% 42% 58% 58% / 12% 12% 72% 72%;
+  background:
+    radial-gradient(circle at 38% 25%, rgba(255, 255, 255, 0.9) 0 7%, transparent 9%),
+    linear-gradient(165deg, #c8f7ff 3%, #62ddff 38%, #08a9ea 78%, #007dc5);
+  box-shadow:
+    inset 5px 0 8px rgba(255, 255, 255, 0.22),
+    inset -5px -8px 10px rgba(0, 81, 156, 0.28),
+    0 0 13px #68e5ff,
+    0 0 28px rgba(0, 207, 255, 0.8);
+  clip-path: polygon(43% 0, 57% 0, 70% 38%, 92% 76%, 80% 94%, 63% 100%, 37% 100%, 20% 94%, 8% 76%, 30% 38%);
+  opacity: 0.9;
+  transform-origin: 50% 0;
+  animation: beautiful-tear 2.6s infinite ease-in-out;
+}
+
+.robot[data-state="almost"] .eye-left .tear {
+  display: none;
+}
+
+.robot[data-state="almost"] .eye-right .tear-one {
+  right: calc(42% - clamp(12px, 1.4vw, 22px));
+  display: block;
+}
+
+.robot[data-state="almost"] .tear-two {
+  display: none;
+}
+
+.robot[data-state="almost"] .eyebrows {
+  top: 15%;
+  display: flex;
+  width: min(46vw, 730px);
+}
+
+.robot[data-state="almost"] .eyebrows span {
+  width: clamp(120px, 15vw, 240px);
+  height: clamp(10px, 1vw, 16px);
+  border: 0;
+  border-radius: 999px;
+  background: var(--green);
+  box-shadow: 0 0 18px var(--green);
+}
+
+.robot[data-state="almost"] .eyebrows span:first-child {
+  animation: sad-brow-left 0.34s infinite alternate ease-in-out;
+}
+
+.robot[data-state="almost"] .eyebrows span:last-child {
+  animation: sad-brow-right 0.34s infinite alternate ease-in-out;
+}
+
+.robot[data-state="almost"] .cheeks {
+  opacity: 0;
+}
+
+.robot[data-state="almost"] .mouth {
+  bottom: 31%;
+  width: clamp(105px, 12vw, 190px);
+  height: clamp(45px, 5vw, 80px);
+  border: 0;
+  border-top: clamp(8px, 0.8vw, 13px) solid var(--green);
+  border-radius: 50% 50% 0 0;
+  background: transparent;
+  box-shadow: none;
+  filter:
+    drop-shadow(0 0 8px var(--green))
+    drop-shadow(0 0 18px rgba(255, 216, 77, 0.65));
+  animation: sad-mouth 1.2s ease-in-out infinite alternate;
+}
+
+.robot[data-state="almost"] .mouth-inner {
+  display: none;
+}
+
+.robot[data-state="almost"] .counter {
+  color: #fff9d8;
+  text-shadow: 0 0 22px var(--green), 0 0 75px rgba(255, 216, 77, 0.7);
+}
+
+.robot[data-state="almost"] .face {
+  animation: disappointed-sink 2.2s ease-in-out infinite;
 }
 
 .robot[data-state="defeat"] {
@@ -764,6 +949,32 @@ body {
   to { filter: brightness(0.75); }
 }
 
+@keyframes beautiful-tear {
+  0%, 100% { transform: translateY(0) scale(0.94, 0.88); opacity: 0.72; filter: brightness(0.95); }
+  45% { transform: translateY(13px) scale(1, 1.08); opacity: 1; filter: brightness(1.15); }
+  70% { transform: translateY(20px) scale(0.96, 1.14); opacity: 0.9; filter: brightness(1.05); }
+}
+
+@keyframes sad-brow-left {
+  from { transform: rotate(-25deg) translateY(0); }
+  to { transform: rotate(-27deg) translateY(2px); }
+}
+
+@keyframes sad-brow-right {
+  from { transform: rotate(25deg) translateY(0); }
+  to { transform: rotate(27deg) translateY(2px); }
+}
+
+@keyframes disappointed-sink {
+  0%, 100% { transform: translateY(5px); }
+  50% { transform: translateY(11px); }
+}
+
+@keyframes sad-mouth {
+  from { transform: translateX(-50%) scaleX(0.94); }
+  to { transform: translateX(-50%) scaleX(1.06) translateY(3px); }
+}
+
 @keyframes wave {
   from { transform: rotate(-35deg); }
   to { transform: rotate(35deg); }
@@ -791,6 +1002,12 @@ body {
   12% { opacity: 1; }
   75% { opacity: 0.75; }
   100% { transform: scale(1.25); opacity: 0; }
+}
+
+@keyframes six-seven-pop {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.2) rotate(-18deg); opacity: 0; }
+  22%, 72% { opacity: 0.92; }
+  48% { transform: translate(-50%, -50%) scale(1.15) rotate(12deg); opacity: 1; }
 }
 
 @keyframes result-time {

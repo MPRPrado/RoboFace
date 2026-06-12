@@ -4,6 +4,7 @@ const STATES = Object.freeze({
   COUNTDOWN: "countdown",
   PLAYING: "playing",
   VICTORY: "victory",
+  ALMOST: "almost",
   DEFEAT: "defeat",
   CLICK_READY: "click-ready",
   CLICK_TEST: "click-test",
@@ -20,12 +21,37 @@ const CLICK_TEST_DURATION_MS = 5000;
 const CLICK_RESULT_LOCK_MS = 2000;
 const TIMER_RESULT_LOCK_MS = 2000;
 const COUNTDOWN_STEP_MS = 850;
+const ALMOST_MARGIN_SECOND = 0.30;
+
+const ACTION_AUDIO = Object.freeze({
+  sleeping: [
+    "dormindo/snore-mimimimimimi.mp3",
+    "dormindo/auf-zzz.mp3",
+  ],
+  victory: [
+    "comemorando/pica-pau-e-as-cataratas-teste.mp3",
+    "comemorando/criancas-comemorando.mp3",
+    "comemorando/67-six-seven.mp3",
+  ],
+  almost: [
+    "quase/zoeira-gato-chorando.mp3",
+    "quase/chaves-chorando.mp3",
+    "quase/nao-sobrou-nada_fZprXSC.mp3",
+  ],
+  defeat: [
+    "rindo/risada-mutley.mp3",
+    "rindo/risada-mp3cut.mp3",
+    "rindo/risada-do-kiko-estourada.mp3",
+    "rindo/coringando.mp3",
+  ],
+});
 
 const robot = document.querySelector("#robot");
 const message = document.querySelector("#message");
 const instruction = document.querySelector("#instruction");
 const counter = document.querySelector("#counter");
 const animalResult = document.querySelector("#animal-result");
+const sixSevenEffect = document.querySelector("#six-seven-effect");
 
 let state = STATES.SLEEPING;
 let elapsedMs = 0;
@@ -41,6 +67,59 @@ let modePressTimer = null;
 let inputLockedUntil = 0;
 let countdownValue = 3;
 let spaceReleasedForCps = true;
+let currentAudio = null;
+const lastAudioByAction = {};
+
+function stopCurrentAudio() {
+  if (!currentAudio) return;
+
+  currentAudio.pause();
+  currentAudio.currentTime = 0;
+  currentAudio = null;
+}
+
+function pickRandomAudio(action) {
+  const tracks = ACTION_AUDIO[action];
+  if (!tracks?.length) return null;
+
+  const availableTracks = tracks.length > 1
+    ? tracks.filter((track) => track !== lastAudioByAction[action])
+    : tracks;
+  const selectedTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
+
+  lastAudioByAction[action] = selectedTrack;
+  return selectedTrack;
+}
+
+function playActionAudio(action, loop = false) {
+  const selectedTrack = pickRandomAudio(action);
+  if (!selectedTrack) return null;
+
+  currentAudio = new Audio(selectedTrack);
+  currentAudio.loop = loop;
+  currentAudio.volume = 0.85;
+  currentAudio.play().catch(() => {});
+
+  return selectedTrack;
+}
+
+function showSixSevenCelebration() {
+  const fragment = document.createDocumentFragment();
+
+  for (let index = 0; index < 42; index += 1) {
+    const number = document.createElement("span");
+    number.textContent = "67";
+    number.style.setProperty("--x", `${Math.random() * 94}%`);
+    number.style.setProperty("--y", `${Math.random() * 88}%`);
+    number.style.setProperty("--delay", `${Math.random() * -2.4}s`);
+    number.style.setProperty("--duration", `${1.1 + Math.random() * 1.4}s`);
+    number.style.setProperty("--size", `${Math.round(22 + Math.random() * 76)}px`);
+    fragment.appendChild(number);
+  }
+
+  sixSevenEffect.replaceChildren(fragment);
+  robot.dataset.celebration = "six-seven";
+}
 
 function clearStateTimers() {
   cancelAnimationFrame(animationFrame);
@@ -81,6 +160,10 @@ function formatTime(milliseconds) {
 
 function getDisplayedTime(milliseconds) {
   return Number((milliseconds / 1000).toFixed(2));
+}
+
+function getDisplayedCentiseconds(milliseconds) {
+  return Math.round(getDisplayedTime(milliseconds) * 100);
 }
 
 function drawTarget() {
@@ -145,10 +228,13 @@ function requestFullscreen() {
 
 function setState(nextState) {
   clearStateTimers();
+  stopCurrentAudio();
 
   state = nextState;
   robot.dataset.state = state;
   delete robot.dataset.locked;
+  delete robot.dataset.celebration;
+  sixSevenEffect.replaceChildren();
   animalResult.textContent = "";
 
   if (state !== STATES.CLICK_RESULT) {
@@ -161,6 +247,7 @@ function setState(nextState) {
       counter.textContent = "--.--";
       setText("SHHH... ESTOU DORMINDO", "PARA ACORDAR");
       rotateExpressions(["sleep", "deep-sleep", "dream", "yawn", "peek"]);
+      playActionAudio("sleeping", true);
       break;
 
     case STATES.WAKING:
@@ -203,8 +290,23 @@ function setState(nextState) {
       robot.dataset.expression = "happy";
       counter.textContent = formatTime(elapsedMs);
       setText("", "");
+      if (playActionAudio("victory")?.endsWith("67-six-seven.mp3")) {
+        showSixSevenCelebration();
+      }
       transitionTimer = setTimeout(() => {
         if (state === STATES.VICTORY) delete robot.dataset.locked;
+      }, TIMER_RESULT_LOCK_MS);
+      break;
+
+    case STATES.ALMOST:
+      inputLockedUntil = performance.now() + TIMER_RESULT_LOCK_MS;
+      robot.dataset.locked = "true";
+      robot.dataset.expression = "crying";
+      counter.textContent = formatTime(elapsedMs);
+      setText("", "");
+      playActionAudio("almost");
+      transitionTimer = setTimeout(() => {
+        if (state === STATES.ALMOST) delete robot.dataset.locked;
       }, TIMER_RESULT_LOCK_MS);
       break;
 
@@ -214,6 +316,7 @@ function setState(nextState) {
       robot.dataset.expression = "laugh";
       counter.textContent = formatTime(elapsedMs);
       setText("", "");
+      playActionAudio("defeat");
       transitionTimer = setTimeout(() => {
         if (state === STATES.DEFEAT) delete robot.dataset.locked;
       }, TIMER_RESULT_LOCK_MS);
@@ -265,9 +368,14 @@ function handleSpace() {
     case STATES.PLAYING: {
       elapsedMs = performance.now() - startTime;
       counter.textContent = formatTime(elapsedMs);
+      const stoppedCentiseconds = getDisplayedCentiseconds(elapsedMs);
+      const targetCentiseconds = targetSecond * 100;
+      const differenceCentiseconds = Math.abs(stoppedCentiseconds - targetCentiseconds);
 
-      if (getDisplayedTime(elapsedMs) === targetSecond) {
+      if (differenceCentiseconds === 0) {
         setState(STATES.VICTORY);
+      } else if (differenceCentiseconds <= ALMOST_MARGIN_SECOND * 100) {
+        setState(STATES.ALMOST);
       } else {
         setState(STATES.DEFEAT);
       }
@@ -276,6 +384,7 @@ function handleSpace() {
     }
 
     case STATES.VICTORY:
+    case STATES.ALMOST:
     case STATES.DEFEAT:
       setState(STATES.WAKING);
       break;
