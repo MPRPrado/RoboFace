@@ -1,8 +1,12 @@
 :root {
-  --bg: #020b06;
-  --green: #42ff88;
-  --green-soft: #19b85c;
-  --white: #edfff4;
+  --bg: #100729;
+  --green: #ffd45a;
+  --green-soft: #e99426;
+  --white: #fff8dc;
+  --red: #ff5757;
+  --blue: #43bfff;
+  --pink: #ff65ba;
+  --festival-green: #58de78;
 }
 
 * {
@@ -26,8 +30,10 @@ body {
   min-height: 280px;
   overflow: hidden;
   background:
-    radial-gradient(circle at 50% 42%, rgba(25, 184, 92, 0.18), transparent 48%),
-    linear-gradient(145deg, #020a06, #031b0e 55%, #020a06);
+    radial-gradient(circle at 50% 48%, rgba(255, 167, 48, 0.16), transparent 38%),
+    radial-gradient(circle at 18% 18%, rgba(67, 191, 255, 0.12), transparent 25%),
+    radial-gradient(circle at 82% 20%, rgba(255, 101, 186, 0.12), transparent 25%),
+    linear-gradient(160deg, #08051d, #1b0d38 58%, #08051d);
   isolation: isolate;
 }
 
@@ -35,11 +41,12 @@ body {
   position: absolute;
   inset: 0;
   z-index: -2;
-  opacity: 0.16;
+  opacity: 0.22;
   background-image:
-    linear-gradient(rgba(66, 255, 136, 0.18) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(66, 255, 136, 0.18) 1px, transparent 1px);
-  background-size: clamp(35px, 5vw, 75px) clamp(35px, 5vw, 75px);
+    radial-gradient(circle, rgba(255, 248, 220, 0.9) 0 1px, transparent 2px),
+    radial-gradient(circle, rgba(255, 212, 90, 0.75) 0 1px, transparent 2px);
+  background-position: 0 0, 32px 42px;
+  background-size: 74px 74px, 96px 96px;
   mask-image: radial-gradient(circle at center, black, transparent 80%);
 }
 
@@ -51,6 +58,185 @@ body {
   opacity: 0.15;
   background: linear-gradient(transparent, var(--green), transparent);
   animation: scan 7s linear infinite;
+}
+
+.festival-lights {
+  position: absolute;
+  z-index: 6;
+  top: 12px;
+  left: 3%;
+  display: flex;
+  justify-content: space-around;
+  width: 94%;
+  pointer-events: none;
+}
+
+.festival-lights::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  width: 100%;
+  height: 25px;
+  border-top: 3px solid rgba(255, 248, 220, 0.5);
+  border-radius: 50%;
+}
+
+.festival-lights span {
+  width: clamp(8px, 1vw, 15px);
+  height: clamp(14px, 1.7vw, 25px);
+  border-radius: 50% 50% 45% 45%;
+  color: var(--red);
+  background: currentColor;
+  box-shadow: 0 0 12px currentColor, 0 0 25px currentColor;
+  animation: festival-twinkle 1.4s ease-in-out infinite alternate;
+}
+
+.festival-lights span:nth-child(4n + 2) { color: var(--blue); animation-delay: -0.35s; }
+.festival-lights span:nth-child(4n + 3) { color: var(--festival-green); animation-delay: -0.7s; }
+.festival-lights span:nth-child(4n) { color: var(--green); animation-delay: -1.05s; }
+
+.bunting {
+  position: absolute;
+  z-index: 5;
+  left: -3%;
+  display: flex;
+  justify-content: space-around;
+  width: 106%;
+  pointer-events: none;
+  transform-origin: top center;
+}
+
+.bunting::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 100%;
+  border-top: 3px solid rgba(255, 248, 220, 0.65);
+}
+
+.bunting span {
+  width: clamp(24px, 4vw, 68px);
+  height: clamp(34px, 5.5vw, 88px);
+  background: var(--red);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.35));
+  animation: flag-sway 2.2s ease-in-out infinite alternate;
+}
+
+.bunting span:nth-child(4n + 2) { background: var(--blue); animation-delay: -0.5s; }
+.bunting span:nth-child(4n + 3) { background: var(--green); animation-delay: -1s; }
+.bunting span:nth-child(4n) { background: var(--pink); animation-delay: -1.5s; }
+.bunting-back { top: 9%; opacity: 0.4; transform: rotate(-3deg) scale(0.82); }
+.bunting-front { top: 5%; transform: rotate(3deg); }
+
+.paper-lantern {
+  position: absolute;
+  z-index: 1;
+  top: 20%;
+  width: clamp(35px, 5vw, 76px);
+  height: clamp(50px, 7vw, 105px);
+  border: 5px solid var(--green);
+  border-radius: 48%;
+  background: repeating-linear-gradient(90deg, #ff704d 0 12%, #ffd45a 12% 24%);
+  box-shadow: 0 0 25px #ff9e44;
+  opacity: 0.75;
+  animation: lantern-sway 3s ease-in-out infinite alternate;
+}
+
+.paper-lantern::before,
+.paper-lantern::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 3px;
+  height: 22px;
+  background: var(--green);
+  transform: translateX(-50%);
+}
+
+.paper-lantern::before { bottom: 100%; }
+.paper-lantern::after { top: 100%; }
+.lantern-left { left: 5%; }
+.lantern-right { right: 5%; animation-delay: -1.5s; }
+
+.bonfire {
+  position: absolute;
+  z-index: 1;
+  bottom: 3%;
+  width: clamp(70px, 9vw, 145px);
+  height: clamp(75px, 11vw, 170px);
+  opacity: 0.72;
+  pointer-events: none;
+}
+
+.bonfire::before,
+.bonfire::after {
+  content: "";
+  position: absolute;
+  bottom: 4%;
+  left: 8%;
+  width: 84%;
+  height: 13%;
+  border-radius: 999px;
+  background: #7d3c25;
+  box-shadow: 0 0 8px #2a120b;
+  transform: rotate(18deg);
+}
+
+.bonfire::after { transform: rotate(-18deg); }
+
+.bonfire span {
+  position: absolute;
+  bottom: 13%;
+  left: 25%;
+  width: 50%;
+  height: 72%;
+  border-radius: 55% 45% 60% 40%;
+  background: linear-gradient(#fff08a, #ff9b2f 55%, #ff4f35);
+  filter: drop-shadow(0 0 18px #ff8b32);
+  clip-path: polygon(50% 0, 82% 45%, 70% 38%, 100% 100%, 0 100%, 28% 48%, 35% 58%);
+  animation: bonfire-dance 0.45s ease-in-out infinite alternate;
+}
+
+.bonfire-left { left: 3%; }
+.bonfire-right { right: 3%; transform: scaleX(-1); }
+
+.straw-hat {
+  position: absolute;
+  z-index: 4;
+  top: -5%;
+  left: 50%;
+  width: clamp(210px, 32vw, 500px);
+  height: clamp(70px, 9vw, 145px);
+  border: clamp(5px, 0.6vw, 10px) solid #8c551c;
+  border-radius: 50% 50% 32% 32%;
+  background:
+    repeating-linear-gradient(8deg, transparent 0 7px, rgba(116, 65, 15, 0.25) 8px 10px),
+    linear-gradient(#ffe082, #d99a32);
+  box-shadow: 0 0 18px rgba(255, 212, 90, 0.7);
+  transform: translateX(-50%) rotate(-4deg);
+}
+
+.straw-hat::after {
+  content: "";
+  position: absolute;
+  bottom: -18%;
+  left: -14%;
+  width: 128%;
+  height: 28%;
+  border: clamp(5px, 0.6vw, 10px) solid #8c551c;
+  border-radius: 50%;
+  background: #e5aa42;
+}
+
+.straw-hat span {
+  position: absolute;
+  z-index: 1;
+  bottom: 8%;
+  width: 100%;
+  height: 18%;
+  background: var(--red);
+  box-shadow: 0 0 8px rgba(255, 87, 87, 0.6);
 }
 
 .fireworks {
@@ -612,8 +798,25 @@ body {
 .robot[data-state="click-test"],
 .robot[data-state="click-result"] {
   background:
-    radial-gradient(ellipse at 72% 45%, rgba(66, 255, 136, 0.25), transparent 35%),
-    linear-gradient(105deg, #020a06, #032414 55%, #020a06);
+    radial-gradient(ellipse at 72% 45%, rgba(255, 212, 90, 0.22), transparent 35%),
+    linear-gradient(105deg, #08051d, #231040 55%, #08051d);
+}
+
+.robot[data-state="countdown"] .bunting,
+.robot[data-state="playing"] .bunting,
+.robot[data-state="click-test"] .bunting,
+.robot[data-state="countdown"] .festival-lights,
+.robot[data-state="playing"] .festival-lights,
+.robot[data-state="click-test"] .festival-lights {
+  opacity: 0.28;
+  transition: opacity 0.4s ease;
+}
+
+.robot[data-state="playing"] .paper-lantern,
+.robot[data-state="playing"] .bonfire,
+.robot[data-state="click-test"] .paper-lantern,
+.robot[data-state="click-test"] .bonfire {
+  opacity: 0.25;
 }
 
 .robot[data-state="click-ready"] .face {
@@ -716,6 +919,25 @@ body {
 
 @keyframes scan {
   to { transform: translateY(750%); }
+}
+
+@keyframes festival-twinkle {
+  to { transform: translateY(3px) scale(1.18); filter: brightness(1.45); }
+}
+
+@keyframes flag-sway {
+  from { transform: skewX(-4deg) rotate(-1deg); }
+  to { transform: skewX(4deg) rotate(1deg); }
+}
+
+@keyframes lantern-sway {
+  from { transform: rotate(-5deg); }
+  to { transform: rotate(5deg); }
+}
+
+@keyframes bonfire-dance {
+  from { transform: scale(0.92, 1.02) rotate(-3deg); filter: drop-shadow(0 0 14px #ff8b32); }
+  to { transform: scale(1.08, 0.94) rotate(3deg); filter: drop-shadow(0 0 25px #ffba46); }
 }
 
 @keyframes float-z {
@@ -861,6 +1083,19 @@ body {
 }
 
 @media (max-height: 560px) {
+  .bunting-back {
+    display: none;
+  }
+
+  .straw-hat {
+    top: -8%;
+    transform: translateX(-50%) rotate(-4deg) scale(0.76);
+  }
+
+  .paper-lantern {
+    opacity: 0.38;
+  }
+
   .eyes {
     top: 17%;
   }
